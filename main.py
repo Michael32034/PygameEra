@@ -36,13 +36,13 @@ score_area = pygame.Surface((65, 200))
 pygame.display.set_caption("Rohit's car game")
 
 #load assets
-cs = os.path.abspath('crash_sound.wav')
-bs = os.path.abspath('background_sound.wav')
-es = os.path.abspath('engine_sound.wav')
+cs = os.path.abspath('sounds/crash_sound.wav')
+bs = os.path.abspath('sounds/background_sound.wav')
+es = os.path.abspath('sounds/engine_sound.wav')
 print(cs,bs,es)
-car1 = os.path.abspath('car1.png')
-car2 = os.path.abspath('car2.png')
-carq = os.path.abspath('carq.png')
+car1 = os.path.abspath('storage/car1.png')
+car2 = os.path.abspath('storage/car2.png')
+carq = os.path.abspath('storage/carq.png')
 
 crash_sound = pygame.mixer.Sound(cs)
 back_sound = pygame.mixer.Sound(bs)
@@ -155,8 +155,8 @@ def run_game(speed_):
                     game_close = False
 
             
-        right_lane = width/2.1 + car_loc1.width/2
-        left_lane = width/3 - car_loc1.width/2
+        right_lane = int(width/2.1 + car_loc1.width/2)
+        left_lane = int(width/3 - car_loc1.width/2)
         engine_sound.play()
         if counter == 1024:
             car_speed += 0.15
