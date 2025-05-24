@@ -15,6 +15,17 @@ pygame.font.init()
 rec = Recorder()
 
 
+class SoundTable:
+    all = {
+        "Crash": "crash_sound.wav",
+        "Background": "background_sound.wav",
+        "Engine": "engine_sound.wav",
+    }
+
+    def get(self, name):
+        return pygame.mixer.Sound(os.path.abspath(f"sounds/{self.all[name]}"))
+
+
 if platform == "android":
     screen_size = pygame.display.Info()
     size = width, height = (screen_size.current_w, screen_size.current_h)
@@ -41,18 +52,15 @@ score_area = pygame.Surface((65, 200))
 
 pygame.display.set_caption("Rohit's car game")
 
-# load assets
-cs = os.path.abspath("sounds/crash_sound.wav")
-bs = os.path.abspath("sounds/background_sound.wav")
-es = os.path.abspath("sounds/engine_sound.wav")
-print(cs, bs, es)
+
 car1 = os.path.abspath("storage/car1.png")
 car2 = os.path.abspath("storage/car2.png")
 carq = os.path.abspath("storage/carq.png")
 
-crash_sound = pygame.mixer.Sound(cs)
-back_sound = pygame.mixer.Sound(bs)
-engine_sound = pygame.mixer.Sound(es)
+ST = SoundTable()
+crash_sound = ST.get("Crash")
+back_sound = ST.get("Background")
+engine_sound = ST.get("Engine")
 
 
 def print_score(sc, sp):
@@ -158,9 +166,9 @@ def run_game(speed_):
         counter += 1
 
         while game_close:
-
+            score = rec.get("g.c.sc.hight_scope")
             game_over_message1 = message_font.render(
-                f"your highest score '{rec.get("g.c.sc.hight_scope")}'",
+                f"your highest score '{score}'",
                 True,
                 "black",
             )
