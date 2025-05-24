@@ -1,13 +1,19 @@
+import random, os
+
 import pygame, sys
 from pygame.locals import *
 import pygame.mixer
-import random, os
-from scrore import update, show
+
 from kivy.utils import platform
+
+from recorder import Recorder
+from config import *
 
 pygame.init()
 pygame.mixer.init()
 pygame.font.init()
+rec = Recorder()
+
 
 if platform == "android":
     screen_size = pygame.display.Info()
@@ -17,67 +23,76 @@ else:
     size = width, height = (450, 700)
     car_speed = 1
 
-road_w = int(width/1.4)
-roadmark_w = int(width/60)
+road_w = int(width / 1.4)
+roadmark_w = int(width / 60)
 
-orange = (255, 165, 0)
-red = 'red' #(255, 165, 0)
-score_font = pygame.font.SysFont('ubuntu', 20)
-score_font1 = pygame.font.SysFont('ubuntu', 30)
-message_font = pygame.font.SysFont('ubuntu', 30)
-message_font_level = pygame.font.SysFont('ubuntu', 20)
+score_font = pygame.font.SysFont("ubuntu", 20)
+score_font1 = pygame.font.SysFont("ubuntu", 30)
+message_font = pygame.font.SysFont("ubuntu", 30)
+message_font_level = pygame.font.SysFont("ubuntu", 20)
 
 running = True
 
-screen = pygame.display.set_mode(size,)
+screen = pygame.display.set_mode(
+    size,
+)
 screen.fill((60, 220, 0))
 score_area = pygame.Surface((65, 200))
 
 pygame.display.set_caption("Rohit's car game")
 
-#load assets
-cs = os.path.abspath('sounds/crash_sound.wav')
-bs = os.path.abspath('sounds/background_sound.wav')
-es = os.path.abspath('sounds/engine_sound.wav')
-print(cs,bs,es)
-car1 = os.path.abspath('storage/car1.png')
-car2 = os.path.abspath('storage/car2.png')
-carq = os.path.abspath('storage/carq.png')
+# load assets
+cs = os.path.abspath("sounds/crash_sound.wav")
+bs = os.path.abspath("sounds/background_sound.wav")
+es = os.path.abspath("sounds/engine_sound.wav")
+print(cs, bs, es)
+car1 = os.path.abspath("storage/car1.png")
+car2 = os.path.abspath("storage/car2.png")
+carq = os.path.abspath("storage/carq.png")
 
 crash_sound = pygame.mixer.Sound(cs)
 back_sound = pygame.mixer.Sound(bs)
 engine_sound = pygame.mixer.Sound(es)
 
+
 def print_score(sc, sp):
     score_area.fill((60, 220, 0))
-    text = score_font.render('score:', True, 'black')
+    text = score_font.render("score:", True, "black")
     score_area.blit(text, [0, 0])
-    text1 = score_font1.render(str(sc), True, 'red')
+    text1 = score_font1.render(str(sc), True, "red")
     score_area.blit(text1, [10, 20])
 
-    
-    game_over_message = score_font.render("speed:", True, 'black')
-    score_area.blit(game_over_message, [0, 60])           
-    game_over_message1 = score_font.render(f"{str(sp)}m/s", True, 'blue')
-    score_area.blit(game_over_message1, [3,90])
+    game_over_message = score_font.render("speed:", True, "black")
+    score_area.blit(game_over_message, [0, 60])
+    game_over_message1 = score_font.render(f"{str(sp)}m/s", True, "blue")
+    score_area.blit(game_over_message1, [3, 90])
     screen.blit(score_area, [0, 0])
 
 
 def draw_image(screen, car_image, car_loc, car_image1, car_loc1):
-    pygame.draw.rect(screen, (50, 50, 50), (width/2 - road_w/2, 0, road_w, height))
-    pygame.draw.rect(screen, (255, 240, 60), (width/2 - roadmark_w/2, 0, roadmark_w, height))
-    pygame.draw.rect(screen, (255, 255, 255), (width/2 - road_w/2 + roadmark_w*2, 0, roadmark_w, height))
-    pygame.draw.rect(screen, (255, 255, 255), (width/2 + road_w/2 - roadmark_w*3, 0, roadmark_w, height))
+    pygame.draw.rect(screen, (50, 50, 50), (width / 2 - road_w / 2, 0, road_w, height))
+    pygame.draw.rect(
+        screen, (255, 240, 60), (width / 2 - roadmark_w / 2, 0, roadmark_w, height)
+    )
+    pygame.draw.rect(
+        screen,
+        (255, 255, 255),
+        (width / 2 - road_w / 2 + roadmark_w * 2, 0, roadmark_w, height),
+    )
+    pygame.draw.rect(
+        screen,
+        (255, 255, 255),
+        (width / 2 + road_w / 2 - roadmark_w * 3, 0, roadmark_w, height),
+    )
 
     screen.blit(car_image, car_loc)
     screen.blit(car_image1, car_loc1)
 
-    
+
 def run_game(speed_):
     car_speed = speed_
     game_over = False
     game_close = False
-
 
     # highway_image = pygame.image.load('highways.jpg')
     # highway_width, highway_height = 300, 700
@@ -89,46 +104,72 @@ def run_game(speed_):
 
     car_image = pygame.image.load(car1)
     car_width, car_height = 80, 160  # Set the desired width and height for the car
-    car_image = pygame.transform.scale(car_image, (car_width, car_height))  # Resize the car image
+    car_image = pygame.transform.scale(
+        car_image, (car_width, car_height)
+    )  # Resize the car image
 
     car_loc = car_image.get_rect()
-    car_loc.x = width/3 - car_loc.width/2  # Set the x-coordinate to center the car horizontally
+    car_loc.x = (
+        width / 3 - car_loc.width / 2
+    )  # Set the x-coordinate to center the car horizontally
     car_loc.y = height * 0.7  # Set the y-coordinate to position the car vertically
 
     if random.randint(0, 1) == 0:
         car_image1 = pygame.image.load(car2)
-        car_width1, car_height1 = 80, 160  # Set the desired width and height for the car
-        car_image1 = pygame.transform.scale(car_image1, (car_width1, car_height1))  # Resize the car image
+        car_width1, car_height1 = (
+            80,
+            160,
+        )  # Set the desired width and height for the car
+        car_image1 = pygame.transform.scale(
+            car_image1, (car_width1, car_height1)
+        )  # Resize the car image
 
         car_loc1 = car_image1.get_rect()
-        car_loc1.x = width/3 - car_loc1.width/2  # Set the x-coordinate to center the car horizontally
-        car_loc1.y = height * 0.02  # Set the y-coordinate to position the car vertically
+        car_loc1.x = (
+            width / 3 - car_loc1.width / 2
+        )  # Set the x-coordinate to center the car horizontally
+        car_loc1.y = (
+            height * 0.02
+        )  # Set the y-coordinate to position the car vertically
 
     else:
         car_image1 = pygame.image.load(carq)
-        car_width1, car_height1 = 100, 160  # Set the desired width and height for the car
-        car_image1 = pygame.transform.scale(car_image1, (car_width1, car_height1))  # Resize the car image
+        car_width1, car_height1 = (
+            100,
+            160,
+        )  # Set the desired width and height for the car
+        car_image1 = pygame.transform.scale(
+            car_image1, (car_width1, car_height1)
+        )  # Resize the car image
 
         car_loc1 = car_image1.get_rect()
-        car_loc1.x = width/3 - car_loc1.width/2  # Set the x-coordinate to center the car horizontally
-        car_loc1.y = height * 0.02  # Set the y-coordinate to position the car vertically
+        car_loc1.x = (
+            width / 3 - car_loc1.width / 2
+        )  # Set the x-coordinate to center the car horizontally
+        car_loc1.y = (
+            height * 0.02
+        )  # Set the y-coordinate to position the car vertically
 
-
-    counter = 0 
+    counter = 0
     car_sc = 0
     car_sp = 0
+    hight_scope = rec.get("g.c.sc.hight_scope")
     while not game_over:
         counter += 1
-        
+
         while game_close:
 
-            game_over_message1 = message_font.render(f"your highest score '{show()}'", True, 'black')
+            game_over_message1 = message_font.render(
+                f"your highest score '{rec.get("g.c.sc.hight_scope")}'",
+                True,
+                "black",
+            )
             screen.blit(game_over_message1, [width / 6, height / 9])
             game_over_message1 = message_font.render("crashed!", True, red)
             screen.blit(game_over_message1, [width / 4, height / 5])
             game_over_message = message_font.render("Game Over!", True, orange)
             screen.blit(game_over_message, [width / 4, height / 3])
-            game_over_message2 = message_font.render("tap to restart!", True, 'purple')
+            game_over_message2 = message_font.render("tap to restart!", True, "purple")
             screen.blit(game_over_message2, [width / 4, height / 2])
             pygame.display.update()
 
@@ -147,16 +188,14 @@ def run_game(speed_):
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if game_close == True:
                         run_game(car_speed)
-                        #game_over = False
-                
+                        # game_over = False
 
                 if event.type == pygame.QUIT:
                     game_over = True
                     game_close = False
 
-            
-        right_lane = int(width/2.1 + car_loc1.width/2)
-        left_lane = int(width/3 - car_loc1.width/2)
+        right_lane = int(width / 2.1 + car_loc1.width / 2)
+        left_lane = int(width / 3 - car_loc1.width / 2)
         engine_sound.play()
         if counter == 1024:
             car_speed += 0.15
@@ -169,11 +208,12 @@ def run_game(speed_):
             car_loc1[1] = -200
             car_sc = car_sc + 3
             car_sp = car_sp + 1
-            update(car_sc)
-        
-            if random.randint(0,1) == 0:
+            if car_sc > hight_scope:
+                rec.set("g.c.sc.hight_scope", car_sc)
+
+            if random.randint(0, 1) == 0:
                 car_loc1.x, car_loc1.y = right_lane, -200
-                
+
             else:
                 car_loc1.x, car_loc1.y = left_lane, -200
 
@@ -184,26 +224,24 @@ def run_game(speed_):
 
             if event.type == KEYDOWN:
                 if event.key in [K_a, K_LEFT]:
-                    if car_loc.x > width/2:
-                        car_loc = car_loc.move([-int(road_w/2), 0])
+                    if car_loc.x > width / 2:
+                        car_loc = car_loc.move([-int(road_w / 2), 0])
                 if event.key in [K_d, K_RIGHT]:
-                    if car_loc.x < width/2 :
-                        car_loc = car_loc.move([int(road_w/2), 0])
-                
+                    if car_loc.x < width / 2:
+                        car_loc = car_loc.move([int(road_w / 2), 0])
+
                 if event.key in [K_d, K_2]:
-                    game_close = True                    
-                
+                    game_close = True
+
             if event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_x, mouse_y = event.pos
                 # print(mouse_x, mouse_y)
 
+                if mouse_x > width / 2 and car_loc.right < road_w:
+                    car_loc = car_loc.move([int(road_w / 2), 0])
 
-                if mouse_x > width/2 and car_loc.right < road_w:
-                    car_loc = car_loc.move([int(road_w/2), 0])
-                
-                if mouse_x < width/2 and car_loc.left > int(road_w/2):
-                    car_loc = car_loc.move([-int(road_w/2), 0])
-
+                if mouse_x < width / 2 and car_loc.left > int(road_w / 2):
+                    car_loc = car_loc.move([-int(road_w / 2), 0])
 
             # if event.type == pygame.MOUSEBUTTONUP:
             #     print('mouse up')
@@ -214,10 +252,9 @@ def run_game(speed_):
             #     print("Finger touched the screen")
 
         if car_loc.colliderect(car_loc1):
-            back_sound.stop() #stop background audio then start play crash sound then it will play
+            back_sound.stop()  # stop background audio then start play crash sound then it will play
             crash_sound.play()
             game_close = True
-                
 
         draw_image(screen, car_image, car_loc, car_image1, car_loc1)
         # screen.blit(highway_image, highway_loc)
@@ -228,5 +265,6 @@ def run_game(speed_):
 
     pygame.quit()
     quit()
+
 
 run_game(car_speed)

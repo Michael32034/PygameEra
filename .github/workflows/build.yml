@@ -41,7 +41,7 @@ jobs:
         uses: digreatbrian/buildozer-action@v2
         with:
               python-version: 3.11
-              buildozer-cmd: yes | buildozer android debug || true
+              buildozer-cmd: buildozer android debug
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
