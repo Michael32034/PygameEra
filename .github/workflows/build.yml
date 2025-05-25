@@ -18,25 +18,6 @@ jobs:
           java-version: 17
           distribution: 'adopt'
 
-      - name: Get Date
-        id: get-date
-        run: |
-          sudo apt update
-          echo "::save-state name=date::$(/bin/date -u "+%Y%m%d")"
-        shell: bash
-
-      - name: Cache Buildozer global directory
-        uses: actions/cache@v4
-        with:
-          path: .buildozer_global
-          key: buildozer-global-${{ hashFiles('buildozer.spec') }} # Replace with your path
-
-      - uses: actions/cache@v4
-        with:
-          path: .buildozer
-          key: ${{ runner.os }}-${{ steps.get-date.outputs.date }}-${{ hashFiles('buildozer.spec') }}
-
-
       - name: Build with Buildozer
         uses: digreatbrian/buildozer-action@v2
         with:
