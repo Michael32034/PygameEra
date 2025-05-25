@@ -161,12 +161,12 @@ def run_game(speed_):
     counter = 0
     car_sc = 0
     car_sp = 0
-    hight_scope = rec.get("g.c.sc.hight_scope")
+    hight_scope = rec.get("g.c.sc.higth_scope")
     while not game_over:
         counter += 1
 
         while game_close:
-            score = rec.get("g.c.sc.hight_scope")
+            score = rec.get("g.c.sc.higth_scope")
             game_over_message1 = message_font.render(
                 f"your highest score '{score}'",
                 True,
@@ -217,7 +217,7 @@ def run_game(speed_):
             car_sc = car_sc + 3
             car_sp = car_sp + 1
             if car_sc > hight_scope:
-                rec.set("g.c.sc.hight_scope", car_sc)
+                rec.set("g.c.sc.higth_scope", car_sc)
 
             if random.randint(0, 1) == 0:
                 car_loc1.x, car_loc1.y = right_lane, -200
