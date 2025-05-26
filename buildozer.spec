@@ -1,10 +1,10 @@
 [app]
 
 # (str) Title of your application
-title = Car game
+title = PygameEra
 
 # (str) Package name
-package.name = cargame
+package.name = pygameera
 
 # (str) Package domain (needed for android/ios packaging)
 package.domain = org.test
@@ -37,7 +37,7 @@ version = 0.2
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
-requirements = python3==3.10.12,kivy==2.3.0,pyjnius==1.5.0,hostpython3==3.10.12,pygame
+requirements = python3, pygame-ce
 
 # (str) Custom source folders for requirements
 # Sets custom source for any requirements with recipes

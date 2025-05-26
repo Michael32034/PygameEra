@@ -1,32 +1,18 @@
-import random, os
+import os
+import sys
+import random
 
-import pygame, sys
+import pygame
 from pygame.locals import *
-import pygame.mixer
 
-from kivy.utils import platform
-
-from recorder import Recorder
 from config import *
+from table import *
+from recorder import Recorder
 
-pygame.init()
-pygame.mixer.init()
 pygame.font.init()
 rec = Recorder()
 
-
-class SoundTable:
-    all = {
-        "Crash": "crash_sound.wav",
-        "Background": "background_sound.wav",
-        "Engine": "engine_sound.wav",
-    }
-
-    def get(self, name):
-        return pygame.mixer.Sound(os.path.abspath(f"sounds/{self.all[name]}"))
-
-
-if platform == "android":
+if sys.platform == "android":
     screen_size = pygame.display.Info()
     size = width, height = (screen_size.current_w, screen_size.current_h)
     car_speed = 10
@@ -42,7 +28,6 @@ score_font1 = pygame.font.SysFont("ubuntu", 30)
 message_font = pygame.font.SysFont("ubuntu", 30)
 message_font_level = pygame.font.SysFont("ubuntu", 20)
 
-running = True
 
 screen = pygame.display.set_mode(
     size,
@@ -201,6 +186,7 @@ def run_game(speed_):
                 if event.type == pygame.QUIT:
                     game_over = True
                     game_close = False
+                    rec.safe()
 
         right_lane = int(width / 2.1 + car_loc1.width / 2)
         left_lane = int(width / 3 - car_loc1.width / 2)
@@ -274,5 +260,19 @@ def run_game(speed_):
     pygame.quit()
     quit()
 
+class SimpleCar():
+    def __init__(self):
+        self.running = True
+    def run(self):
+        run_game(car_speed)
 
-run_game(car_speed)
+class PygameEra():
+    def __init__(self):
+        pygame.init()
+        self.rec = Recorder()
+    def run(self):
+        self.manager_game = SimpleCar()
+        self.manager_game.run()
+
+game = PygameEra()
+game.run()
