@@ -1,1 +1,18 @@
-{"Game": {"Car": {"SimpleCar": {"higth_scope": 0}}}}
+{
+    "Game": {
+        "Car": {
+            "SimpleCar": {
+                "higth_scope": 0,
+                "android": {
+                    "start_speed": 10
+                },
+                "windows": {
+                    "start_speed": 1
+                },
+                "linux": {
+                    "start_speed": 1
+                }
+            }
+        }
+    }
+}

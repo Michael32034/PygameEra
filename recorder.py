@@ -1,11 +1,32 @@
 import json
 import os
 
+from glom import glom, assign
+
 
 class Recorder:
-    standart_view = {"Game": {"Car": {"SimpleCar": {"higth_scope": 0}}}}
+    standart_view = {
+        "Game": {
+            "Car": {
+                "SimpleCar": {
+                    "higth_scope": 0,
+                    "android": {"start_speed": 10},
+                    "windows": {"start_speed": 1},
+                    "linux": {"start_speed": 1},
+                }
+            }
+        }
+    }
 
-    shorts = {"g": "Game", "c": "Car", "sc": "SimpleCar"}
+    shorts = {
+        "g": "Game",
+        "c": "Car",
+        "sc": "SimpleCar",
+        "simplecar": "Game.Car.SimpleCar",
+        "and": "android",
+        "win": "windows",
+        "lin": "linux",
+    }
 
     def __init__(self):
         # Check validity data.json
@@ -19,23 +40,24 @@ class Recorder:
 
     def nullable(self):
         # Zeroing all record
-        with open("data.json", "w") as dt:
-            json.dump(self.standart_view, dt)
-            self.data = self.standart_view
+        self.data = self.standart_view
+        self.safe()
         return self
 
     def get(self, shortlink):
         sl = shortlink.split(".")
-        return self.data[self.shorts[sl[0]]][self.shorts[sl[1]]][self.shorts[sl[2]]][
-            sl[3]
-        ]
+        return glom(
+            self.data, ".".join([self.shorts[i] if i in self.shorts else i for i in sl])
+        )
 
     def set(self, shortlink, new):
         sl = shortlink.split(".")
-        self.data[self.shorts[sl[0]]][self.shorts[sl[1]]][self.shorts[sl[2]]][
-            sl[3]
-        ] = new
+        return assign(
+            self.data,
+            ".".join([self.shorts[i] if i in self.shorts else i for i in sl]),
+            new,
+        )
 
     def safe(self):
         with open("data.json", "w") as dt:
-            json.dump(self.data, dt)
+            json.dump(self.data, dt, indent=4)
