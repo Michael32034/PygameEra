@@ -9,13 +9,6 @@ from config import *
 from table import *
 from recorder import Recorder
 
-road_w = int(450 / 1.4)
-roadmark_w = int(450 / 60)
-
-
-car1 = os.path.abspath("storage/car1.png")
-car2 = os.path.abspath("storage/car2.png")
-carq = os.path.abspath("storage/carq.png")
 
 class Windows:
     def __init__(self, size):
@@ -26,7 +19,17 @@ class Windows:
         self.display.fill((60, 220, 0))
         pygame.display.set_caption("PygameEra")
 
-class SimpleCar:
+class Car():
+    skinlist = {
+        "main": os.path.abspath("storage/main_car.png"),
+        "tractor": os.path.abspath("storage/tractor_car.png"),
+        "passenger": os.path.abspath("storage/passenger_car.png")
+    }
+    def __init__(self, skin, enemy = False):
+        self.surface = pygame.image.load(self.skinlist[skin]).convert_alpha()
+        self.rect = self.surface.get_rect()
+
+class SimpleCarGame:
     def __init__(self, rec, display):
         self.running = False
         self.rec = rec
@@ -35,6 +38,8 @@ class SimpleCar:
         self.crash_sound = self.st.get("Crash")
         self.back_sound = self.st.get("Background")
         self.engine_sound = self.st.get("Engine")
+        self.road_w = int(self.display.size[0] / 1.4)
+        self.roadmark_w = int(self.display.size[0] / 60)
         self.simple_f = FontTable(self.display.size).get("Simple")
         self.simple_bf = FontTable(self.display.size).get("SimpleBig")
 
@@ -56,15 +61,15 @@ class SimpleCar:
         pygame.draw.rect(
             self.display.display,
             (50, 50, 50),
-            (self.display.size[0] / 2 - road_w / 2, 0, road_w, self.display.size[1]),
+            (self.display.size[0] / 2 - self.road_w / 2, 0, self.road_w, self.display.size[1]),
         )
         pygame.draw.rect(
             self.display.display,
             (255, 240, 60),
             (
-                self.display.size[0] / 2 - roadmark_w / 2,
+                self.display.size[0] / 2 - self.roadmark_w / 2,
                 0,
-                roadmark_w,
+                self.roadmark_w,
                 self.display.size[1],
             ),
         )
@@ -72,9 +77,9 @@ class SimpleCar:
             self.display.display,
             (255, 255, 255),
             (
-                self.display.size[0] / 2 - road_w / 2 + roadmark_w * 2,
+                self.display.size[0] / 2 - self.road_w / 2 + self.roadmark_w * 2,
                 0,
-                roadmark_w,
+                self.roadmark_w,
                 self.display.size[1],
             ),
         )
@@ -82,9 +87,9 @@ class SimpleCar:
             self.display.display,
             (255, 255, 255),
             (
-                self.display.size[0] / 2 + road_w / 2 - roadmark_w * 3,
+                self.display.size[0] / 2 + self.road_w / 2 - self.roadmark_w * 3,
                 0,
-                roadmark_w,
+                self.roadmark_w,
                 self.display.size[1],
             ),
         )
@@ -162,20 +167,23 @@ class SimpleCar:
         width, height = self.display.size
         while not game_over:
             counter += 1
-
-            while game_close:
+            print("#1")
+            while not game_close:
                 score = self.rec.get("g.c.sc.higth_scope")
                 game_over_message1 = self.simple_bf.render(
                     f"your highest score '{score}'",
                     True,
                     "black",
                 )
+                print("#2")
                 self.display.display.blit(game_over_message1, [width / 6, height / 9])
                 game_over_message1 = self.simple_bf.render("crashed!", True, red)
                 self.display.display.blit(game_over_message1, [width / 4, height / 5])
                 game_over_message = self.simple_bf.render("Game Over!", True, orange)
                 self.display.display.blit(game_over_message, [width / 4, height / 3])
-                game_over_message2 = self.simple_bf.render("tap to restart!", True, "purple")
+                game_over_message2 = self.simple_bf.render(
+                    "tap to restart!", True, "purple"
+                )
                 self.display.display.blit(game_over_message2, [width / 4, height / 2])
                 pygame.display.update()
 
@@ -199,8 +207,6 @@ class SimpleCar:
                     if event.type == pygame.QUIT:
                         game_over = True
                         game_close = False
-                        self.rec.safe()
-
             right_lane = int(width / 2.1 + car_loc1.width / 2)
             left_lane = int(width / 3 - car_loc1.width / 2)
             self.engine_sound.play()
@@ -232,10 +238,10 @@ class SimpleCar:
                 if event.type == KEYDOWN:
                     if event.key in [K_a, K_LEFT]:
                         if car_loc.x > width / 2:
-                            car_loc = car_loc.move([-int(road_w / 2), 0])
+                            car_loc = car_loc.move([-int(self.road_w / 2), 0])
                     if event.key in [K_d, K_RIGHT]:
                         if car_loc.x < width / 2:
-                            car_loc = car_loc.move([int(road_w / 2), 0])
+                            car_loc = car_loc.move([int(self.road_w / 2), 0])
 
                     if event.key in [K_d, K_2]:
                         game_close = True
@@ -244,11 +250,11 @@ class SimpleCar:
                     mouse_x, mouse_y = event.pos
                     # print(mouse_x, mouse_y)
 
-                    if mouse_x > width / 2 and car_loc.right < road_w:
-                        car_loc = car_loc.move([int(road_w / 2), 0])
+                    if mouse_x > width / 2 and car_loc.right < self.road_w:
+                        car_loc = car_loc.move([int(self.road_w / 2), 0])
 
-                    if mouse_x < width / 2 and car_loc.left > int(road_w / 2):
-                        car_loc = car_loc.move([-int(road_w / 2), 0])
+                    if mouse_x < width / 2 and car_loc.left > int(self.road_w / 2):
+                        car_loc = car_loc.move([-int(self.road_w / 2), 0])
 
                 # if event.type == pygame.MOUSEBUTTONUP:
                 #     print('mouse up')
@@ -273,6 +279,18 @@ class SimpleCar:
         pygame.quit()
         quit()
 
+    def eventcheck(self):
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    pygame.quit()
+                    quit()
+
+    def eventloop(self):
+        while self.running :
+            self.eventcheck()
+    def draw(self):
+        pass
 
     def setup(self):
         self.score_area = pygame.Surface((65, 200))
@@ -280,8 +298,8 @@ class SimpleCar:
     def run(self):
         self.running = True
         self.setup()
-        self.run_game(self.rec.get(f"simplecar.higth_scope"))
-
+        #self.run_game(self.rec.get(f"simplecar.higth_scope"))
+        self.eventloop()
 
 class PygameEra:
     def setup(self):
@@ -298,7 +316,7 @@ class PygameEra:
         self.setup()
 
     def run(self):
-        self.manager_game = SimpleCar(self.rec, self.display)
+        self.manager_game = SimpleCarGame(self.rec, self.display)
         self.manager_game.run()
 
 
