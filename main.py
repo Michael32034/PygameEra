@@ -1,4 +1,3 @@
-import os
 import sys
 import random
 
@@ -7,42 +6,35 @@ from pygame.locals import *
 
 from config import *
 from table import *
+from ui import *
+from items import *
 from recorder import Recorder
 
 
-class Windows:
-    def __init__(self, size):
-        self.size = size
-        self.display = pygame.display.set_mode(
-            size,
-        )
-        self.display.fill((60, 220, 0))
-        pygame.display.set_caption("PygameEra")
-
-class Car():
-    skinlist = {
-        "main": os.path.abspath("storage/main_car.png"),
-        "tractor": os.path.abspath("storage/tractor_car.png"),
-        "passenger": os.path.abspath("storage/passenger_car.png")
-    }
-    def __init__(self, skin, enemy = False):
-        self.surface = pygame.image.load(self.skinlist[skin]).convert_alpha()
-        self.rect = self.surface.get_rect()
-
 class SimpleCarGame:
-    def __init__(self, rec, display):
+    def __init__(self, rec: Recorder):
         self.running = False
+
         self.rec = rec
-        self.display = display
+        self.screen = pygame.display.get_surface()
+        self.size = Screen.current_size()
+        self.clock = pygame.time.Clock()
         self.st = SoundTable()
+        self.ft = FontTable()
+
         self.crash_sound = self.st.get("Crash")
         self.back_sound = self.st.get("Background")
         self.engine_sound = self.st.get("Engine")
-        self.road_w = int(self.display.size[0] / 1.4)
-        self.roadmark_w = int(self.display.size[0] / 60)
-        self.simple_f = FontTable(self.display.size).get("Simple")
-        self.simple_bf = FontTable(self.display.size).get("SimpleBig")
 
+    def setup(self):
+        self.road = Road()
+        self.score = 0
+        self.window = Window((0, 0), (0.3, 0.3), white)
+        self.score_area = pygame.Surface((65, 200))
+        self.speed: int = self.rec.get("simplecar.and.start_speed")
+        self.higth_scope: int = self.rec.get("simplecar.higth_scope")
+        self.fps: int = self.rec.get("g.s.FPS")
+        self.back_sound.play()
 
     def print_score(self, sc, sp):
         self.score_area.fill((60, 220, 0))
@@ -55,47 +47,7 @@ class SimpleCarGame:
         self.score_area.blit(game_over_message, [0, 60])
         game_over_message1 = self.simple_bf.render(f"{str(sp)}m/s", True, "blue")
         self.score_area.blit(game_over_message1, [3, 90])
-        self.display.display.blit(self.score_area, [0, 0])
-
-    def draw_image(self, car_image, car_loc, car_image1, car_loc1):
-        pygame.draw.rect(
-            self.display.display,
-            (50, 50, 50),
-            (self.display.size[0] / 2 - self.road_w / 2, 0, self.road_w, self.display.size[1]),
-        )
-        pygame.draw.rect(
-            self.display.display,
-            (255, 240, 60),
-            (
-                self.display.size[0] / 2 - self.roadmark_w / 2,
-                0,
-                self.roadmark_w,
-                self.display.size[1],
-            ),
-        )
-        pygame.draw.rect(
-            self.display.display,
-            (255, 255, 255),
-            (
-                self.display.size[0] / 2 - self.road_w / 2 + self.roadmark_w * 2,
-                0,
-                self.roadmark_w,
-                self.display.size[1],
-            ),
-        )
-        pygame.draw.rect(
-            self.display.display,
-            (255, 255, 255),
-            (
-                self.display.size[0] / 2 + self.road_w / 2 - self.roadmark_w * 3,
-                0,
-                self.roadmark_w,
-                self.display.size[1],
-            ),
-        )
-        self.display.display.blit(car_image, car_loc)
-        self.display.display.blit(car_image1, car_loc1)
-
+        self.screen.blit(self.score_area, [0, 0])
 
     def run_game(self, speed_):
         car_speed = speed_
@@ -118,10 +70,10 @@ class SimpleCarGame:
 
         car_loc = car_image.get_rect()
         car_loc.x = (
-            self.display.size[0] / 3 - car_loc.width / 2
+            self.root.size[0] / 3 - car_loc.width / 2
         )  # Set the x-coordinate to center the car horizontally
         car_loc.y = (
-            self.display.size[1] * 0.7
+            self.root.size[1] * 0.7
         )  # Set the y-coordinate to position the car vertically
 
         if random.randint(0, 1) == 0:
@@ -136,10 +88,10 @@ class SimpleCarGame:
 
             car_loc1 = car_image1.get_rect()
             car_loc1.x = (
-                self.display.size[0] / 3 - car_loc1.width / 2
+                self.root.size[0] / 3 - car_loc1.width / 2
             )  # Set the x-coordinate to center the car horizontally
             car_loc1.y = (
-                self.display.size[1] * 0.02
+                self.root.size[1] * 0.02
             )  # Set the y-coordinate to position the car vertically
 
         else:
@@ -154,17 +106,17 @@ class SimpleCarGame:
 
             car_loc1 = car_image1.get_rect()
             car_loc1.x = (
-                self.display.size[0] / 3 - car_loc1.width / 2
+                self.root.size[0] / 3 - car_loc1.width / 2
             )  # Set the x-coordinate to center the car horizontally
             car_loc1.y = (
-                self.display.size[0] * 0.02
+                self.root.size[0] * 0.02
             )  # Set the y-coordinate to position the car vertically
 
         counter = 0
         car_sc = 0
         car_sp = 0
         hight_scope = self.rec.get("g.c.sc.higth_scope")
-        width, height = self.display.size
+        width, height = self.root.size
         while not game_over:
             counter += 1
             print("#1")
@@ -176,15 +128,15 @@ class SimpleCarGame:
                     "black",
                 )
                 print("#2")
-                self.display.display.blit(game_over_message1, [width / 6, height / 9])
+                self.root.display.blit(game_over_message1, [width / 6, height / 9])
                 game_over_message1 = self.simple_bf.render("crashed!", True, red)
-                self.display.display.blit(game_over_message1, [width / 4, height / 5])
+                self.root.display.blit(game_over_message1, [width / 4, height / 5])
                 game_over_message = self.simple_bf.render("Game Over!", True, orange)
-                self.display.display.blit(game_over_message, [width / 4, height / 3])
+                self.root.display.blit(game_over_message, [width / 4, height / 3])
                 game_over_message2 = self.simple_bf.render(
                     "tap to restart!", True, "purple"
                 )
-                self.display.display.blit(game_over_message2, [width / 4, height / 2])
+                self.root.display.blit(game_over_message2, [width / 4, height / 2])
                 pygame.display.update()
 
                 for event in pygame.event.get():
@@ -279,27 +231,59 @@ class SimpleCarGame:
         pygame.quit()
         quit()
 
+    def output(self):
+        font = self.ft.get("Simple")
+        font_size = self.ft.size("Simple")
+        bfont = self.ft.get("SimpleBig")
+        bfont_size = self.ft.size("SimpleBig")
+        self.window.add_context(
+            Text("score:", font),
+            Text(str(self.score), bfont, (int(float(font_size) * 1.2), bfont_size)),
+            Text(
+                "speed:",
+                font,
+                (int(float(font_size) * 1.2) + int(float(bfont_size) * 1.2), 0),
+            ),
+            Text(
+                str(self.speed),
+                bfont,
+                (
+                    int(float(font_size * 2.6)) + int(float(bfont_size * 1.2)),
+                    bfont_size,
+                ),
+            ),
+        )
+
+    def update(self):
+        self.road.update()
+        self.output()
+        self.window.update()
+
     def eventcheck(self):
         for event in pygame.event.get():
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    pygame.quit()
-                    quit()
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
 
     def eventloop(self):
-        while self.running :
+        while self.running:
+            self.screen.fill(green)
             self.eventcheck()
-    def draw(self):
-        pass
+            self.update()
+            self.draw()
+            pygame.display.update()
+            self.clock.tick(self.fps)
 
-    def setup(self):
-        self.score_area = pygame.Surface((65, 200))
+    def draw(self):
+        self.road.draw(self.screen)
+        self.screen.blit(self.window.image, self.window.rect)
 
     def run(self):
         self.running = True
         self.setup()
-        #self.run_game(self.rec.get(f"simplecar.higth_scope"))
         self.eventloop()
+        # self.run_game(self.rec.get(f"simplecar.higth_scope"))
+
 
 class PygameEra:
     def setup(self):
@@ -310,13 +294,13 @@ class PygameEra:
             size = (screen_size.current_w, screen_size.current_h)
         else:
             size = PC_W_SIZE
-        self.display = Windows(size)
+        self.display = Screen(size)
 
     def __init__(self):
         self.setup()
 
     def run(self):
-        self.manager_game = SimpleCarGame(self.rec, self.display)
+        self.manager_game = SimpleCarGame(self.rec)
         self.manager_game.run()
 
 

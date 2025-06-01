@@ -1,12 +1,16 @@
 import json
 import os
 
+from typing import Any
 from glom import glom, assign
 
 
 class Recorder:
     standart_view = {
         "Game": {
+            "settings": {
+                "FPS": 60
+            },
             "Car": {
                 "SimpleCar": {
                     "higth_scope": 0,
@@ -20,6 +24,7 @@ class Recorder:
 
     shorts = {
         "g": "Game",
+        "s": "settings",
         "c": "Car",
         "sc": "SimpleCar",
         "simplecar": "Game.Car.SimpleCar",
@@ -28,7 +33,9 @@ class Recorder:
         "lin": "linux",
     }
 
-    def __init__(self):
+    data: dict
+
+    def __init__(self) -> None:
         # Check validity data.json
         if not os.path.exists("data.json"):
             self.nullable()
@@ -38,26 +45,26 @@ class Recorder:
             else:
                 self.nullable()
 
-    def nullable(self):
+    def nullable(self) -> "Recorder":
         # Zeroing all record
         self.data = self.standart_view
         self.safe()
         return self
 
-    def get(self, shortlink):
+    def get(self, shortlink: str) -> Any:
         sl = shortlink.split(".")
         return glom(
             self.data, ".".join([self.shorts[i] if i in self.shorts else i for i in sl])
         )
 
-    def set(self, shortlink, new):
+    def set(self, shortlink: str, new: object) -> None:
         sl = shortlink.split(".")
-        return assign(
+        assign(
             self.data,
             ".".join([self.shorts[i] if i in self.shorts else i for i in sl]),
             new,
         )
 
-    def safe(self):
+    def safe(self) -> None:
         with open("data.json", "w") as dt:
             json.dump(self.data, dt, indent=4)

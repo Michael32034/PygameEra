@@ -1,5 +1,8 @@
 {
     "Game": {
+        "settings": {
+            "FPS": 60
+        },
         "Car": {
             "SimpleCar": {
                 "higth_scope": 0,

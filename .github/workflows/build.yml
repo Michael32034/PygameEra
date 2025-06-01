@@ -1,6 +1,6 @@
 name: Build APK
 on:
-  workflow_dispath:
+  workflow_dispatch:
 
 jobs:
   build-android:
